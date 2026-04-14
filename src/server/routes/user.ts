@@ -11,7 +11,7 @@ import { cookies } from "next/headers";
 export const userRoutes = router({
     registerUser: publicProcedure
         .input(registerSchema)
-        .query(
+        .mutation(
             async ({ input, ctx }) => {
                 const { name, email, password } = input
                 if (!name || !email || !password) {
@@ -59,7 +59,7 @@ export const userRoutes = router({
 
     loginUser: publicProcedure
         .input(loginSchema)
-        .query(
+        .mutation(
             async ({ ctx, input }) => {
                 const { email, password } = input
                 if (!email || !password) {
@@ -107,7 +107,7 @@ export const userRoutes = router({
                         },
                         accessSecret,
                         {
-                            expiresIn: "7d"
+                            expiresIn: "15m"
                         }
                     )
 
@@ -126,17 +126,17 @@ export const userRoutes = router({
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
                         sameSite: "lax",
-                        maxAge: 60 * 60 * 24 * 7,
+                        maxAge: 60 * 15,
                     });
 
                     cs.set("sayzo_refreshToken", refreshToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
                         sameSite: "lax",
-                        maxAge: 60 * 60 * 24 * 30,
+                        maxAge: 60 * 60 * 24 * 7,
                     });
 
-                    return { accessToken }
+                    return { success: true }
                 })
             }
         ),
