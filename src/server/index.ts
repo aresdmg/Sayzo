@@ -1,17 +1,8 @@
-import { router, publicProcedure } from "./trpc"
-import z from "zod";
+import { userRoutes } from "./routes/user"
+import { router } from "./trpc"
 
 export const appRouter = router({
-    health: publicProcedure
-        .input(
-            z.undefined()
-        )
-        .query(async({ ctx }) => {
-            return {
-                status: "ok",
-                timestamp: new Date().toISOString()
-            }
-        })
+    user: userRoutes,
 })
 
 export type AppRouter = typeof appRouter 
