@@ -114,7 +114,7 @@ export const userRoutes = router({
                     const refreshToken = crypto.randomBytes(64).toString("hex")
                     const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest("hex")
 
-                    tx.insert(userToken)
+                    await tx.insert(userToken)
                         .values({
                             userId: user.id,
                             refreshToken: hashedRefreshToken,
