@@ -1,5 +1,5 @@
 import { loginSchema, registerSchema } from "@/types/auth";
-import { publicProcedure, router } from "../trpc";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { users, userToken } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -66,9 +66,9 @@ export const userRoutes = router({
                     throw new TRPCError({ code: "BAD_REQUEST", message: "email or password is missing" })
                 }
 
-                const accessSecret = process.env.ACCESS_SECRET
+                const accessSecret = process.env.JWT_SECRET
                 if (!accessSecret) {
-                    throw new Error("ACCESS_SECRET is not set")
+                    throw new Error("JWT_SECRET is not set")
                 }
 
                 return await ctx.db.transaction(async (tx) => {
@@ -122,14 +122,14 @@ export const userRoutes = router({
                         })
 
                     const cs = await cookies()
-                    cs.set("sayzo_accessToken", accessToken, {
+                    cs.set("sayzoAccessToken", accessToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
                         sameSite: "lax",
                         maxAge: 60 * 15,
                     });
 
-                    cs.set("sayzo_refreshToken", refreshToken, {
+                    cs.set("sayzoRefreshToken", refreshToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
                         sameSite: "lax",
@@ -140,4 +140,39 @@ export const userRoutes = router({
                 })
             }
         ),
+
+    logoutUser: protectedProcedure
+        .mutation(
+            async ({ ctx }) => {
+
+                const userId = ctx.user.id
+                if (!userId) {
+                    throw new TRPCError({ code: "UNAUTHORIZED", message: "Unauthorized request" })
+                }
+
+                const cs = await cookies()
+                const refreshToken = cs.get("sayzoRefreshToken")?.value
+                if (!refreshToken) {
+                    throw new TRPCError({ code: "UNAUTHORIZED", message: "Missing refresh token" })
+                }
+
+                const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest("hex")
+
+                await ctx.db.update(userToken)
+                    .set({
+                        revoked: true
+                    }).where(
+                        and(
+                            eq(userToken.refreshToken, hashedRefreshToken),
+                            eq(userToken.userId, userId),
+                            eq(userToken.revoked, false)
+                        )
+                    )
+
+                cs.delete("sayzoAccessToken")
+                cs.delete("sayzoRefreshToken")
+
+                return { success: true };
+            }
+        )
 })
