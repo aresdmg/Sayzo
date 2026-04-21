@@ -9,13 +9,13 @@ import crypto from "node:crypto";
 import { cookies } from "next/headers";
 
 export const userRoutes = router({
-    registerUser: publicProcedure
+    register: publicProcedure
         .input(registerSchema)
         .mutation(
             async ({ input, ctx }) => {
                 const { name, email, password } = input
                 if (!name || !email || !password) {
-                    throw new TRPCError({ code: "BAD_REQUEST", message: "missing fields" })
+                    throw new TRPCError({ code: "BAD_REQUEST", message: "Missing fields" })
                 }
 
                 const [existingEmail] = await ctx.db
@@ -30,7 +30,7 @@ export const userRoutes = router({
                     .limit(1)
 
                 if (existingEmail) {
-                    throw new TRPCError({ code: "BAD_REQUEST", message: "email is taken" })
+                    throw new TRPCError({ code: "BAD_REQUEST", message: "Email is taken" })
                 }
 
                 const hashedPassword = await bcrypt.hash(password, 12)
@@ -44,7 +44,7 @@ export const userRoutes = router({
                     .returning()
 
                 if (!createdUser) {
-                    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "failed to register user" })
+                    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to register user" })
                 }
 
                 return {
@@ -57,13 +57,13 @@ export const userRoutes = router({
             }
         ),
 
-    loginUser: publicProcedure
+    login: publicProcedure
         .input(loginSchema)
         .mutation(
             async ({ ctx, input }) => {
                 const { email, password } = input
                 if (!email || !password) {
-                    throw new TRPCError({ code: "BAD_REQUEST", message: "email or password is missing" })
+                    throw new TRPCError({ code: "BAD_REQUEST", message: "Email or password is missing" })
                 }
 
                 const accessSecret = process.env.JWT_SECRET
@@ -90,12 +90,12 @@ export const userRoutes = router({
                         .limit(1)
 
                     if (!user) {
-                        throw new TRPCError({ code: "NOT_FOUND", message: "user not found" })
+                        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" })
                     }
 
                     const isValidPassword = await bcrypt.compare(password, user.password!)
                     if (!isValidPassword) {
-                        throw new TRPCError({ code: "BAD_REQUEST", message: "invalid credentials" })
+                        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid credentials" })
                     }
 
                     const accessToken = jwt.sign(
@@ -141,7 +141,7 @@ export const userRoutes = router({
             }
         ),
 
-    logoutUser: protectedProcedure
+    logout: protectedProcedure
         .mutation(
             async ({ ctx }) => {
 

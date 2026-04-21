@@ -1,3 +1,17 @@
 "use client"
 
-export default function Home() {}
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+
+export default function Home() {
+    const router = useRouter()
+
+    return (
+        <>
+        Home.tsx
+        <Button className="w-fit" onClick={() => router.push('/auth/register') }>
+            Click me!
+        </Button>
+        </>
+    )
+}
