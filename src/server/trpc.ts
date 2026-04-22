@@ -8,7 +8,7 @@ export const publicProcedure = t.procedure
 
 const isAuth = t.middleware(({ ctx, next }) => {
     if (!ctx.user) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "unauthorized request" })
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Unauthorized request" })
     }
 
     return next({
@@ -21,7 +21,7 @@ const isAuth = t.middleware(({ ctx, next }) => {
 
 const isAdmin = t.middleware(({ ctx, next }) => {
     if (ctx.user?.role !== "ADMIN") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "admin resources not allowed" })
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin resources not allowed" })
     }
 
     return next()

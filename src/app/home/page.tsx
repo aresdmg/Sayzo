@@ -1,6 +1,6 @@
 'use client'
 
-export default function Console() {
+export default function HomePage() {
     return (
         <>
             Home

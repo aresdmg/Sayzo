@@ -14,7 +14,7 @@ export const businessRoutes = router({
                     throw new TRPCError({ code: "BAD_REQUEST", message: "Business name is required" })
                 }
 
-                const slug = name.trim().replace(" ", "-")
+                const slug = name.toLowerCase().trim().replaceAll(" ", "-")
                 const [existingSlug] = await ctx.db
                     .select()
                     .from(businesses)
