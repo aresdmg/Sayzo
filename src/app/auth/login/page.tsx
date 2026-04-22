@@ -25,7 +25,7 @@ export default function SignIn() {
         onSuccess: () => {
             toast.success("Welcome")
             reset()
-            router.push('/console')
+            router.push('/home')
         },
         onError: (e) => {
             toast.error(e.message)
@@ -102,11 +102,7 @@ export default function SignIn() {
 
                                     <div className="relative">
                                         <Input type={showPassword ? "text" : "password"} {...register("password")} placeholder="••••••••" className="h-11 pr-10 bg-white border-zinc-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(prev => !prev)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700"
-                                        >
+                                        <button type="button" onClick={() => setShowPassword(prev => !prev)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700">
                                             {showPassword ? <Eye className="size-5" /> : <EyeClosed className="size-5" />}
                                         </button>
                                     </div>

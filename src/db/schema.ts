@@ -23,7 +23,7 @@ export const userToken = pgTable("user_tokens", {
 
 export const businesses = pgTable("businesses", {
     id: uuid("id").defaultRandom().primaryKey(),
-    owner: uuid("owner_user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    ownerId: uuid("owner_user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     name: varchar("name", { length: 255 }).notNull(),
     slug: varchar("slug", { length: 255 }).unique().notNull(),
     reviewLink: text("review_link"),

@@ -8,7 +8,7 @@ export function proxy(req: NextRequest) {
     const token = req.cookies.get('sayzoAccessToken')?.value;
 
     if (isPublicPath && token) {
-        return NextResponse.redirect(new URL('/console', req.nextUrl))
+        return NextResponse.redirect(new URL('/home', req.nextUrl))
     }
 
     if (!isPublicPath && !token) {
@@ -22,6 +22,9 @@ export const config = {
     matcher: [
         '/',
         '/auth/:path*',
-        '/console/:path*'
+        '/home/:path*',
+        '/profile',
+        '/business',
+        '/review'
     ],
 };

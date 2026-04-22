@@ -78,7 +78,8 @@ export const userRoutes = router({
                             name: users.name,
                             email: users.email,
                             role: users.role,
-                            password: users.password
+                            password: users.password,
+                            avatar: users.avatar
                         })
                         .from(users)
                         .where(
@@ -103,7 +104,8 @@ export const userRoutes = router({
                             id: user.id,
                             email: user.email,
                             name: user.name,
-                            role: user.role
+                            role: user.role,
+                            avatar: user.avatar
                         },
                         accessSecret,
                         {
@@ -173,6 +175,14 @@ export const userRoutes = router({
                 cs.delete("sayzoRefreshToken")
 
                 return { success: true };
+            }
+        ),
+
+    me: protectedProcedure
+        .query(
+            async ({ ctx }) => {
+                const user = ctx.user
+                return user
             }
         )
 })

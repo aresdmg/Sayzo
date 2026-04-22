@@ -13,6 +13,8 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
+export const USER_INFO_KEY = "sayzo_user"
+
 export default function SignUp() {
     const router = useRouter()
     const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +25,8 @@ export default function SignUp() {
     })
 
     const mutation = trpc.user.register.useMutation({
-        onSuccess: () => {
+        onSuccess: (e) => {
+            localStorage.setItem(USER_INFO_KEY, JSON.stringify(e))
             toast.success("User created")
             reset()
             router.push('/auth/login')

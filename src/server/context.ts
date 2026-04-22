@@ -5,8 +5,9 @@ import jwt from "jsonwebtoken"
 export interface SayzoJWTPayload {
     id: string,
     name: string,
-    email: string
-    role: string
+    email: string,
+    role: string,
+    avatar: string
 }
 
 export const serverContext = async () => {
