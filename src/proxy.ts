@@ -24,7 +24,7 @@ export const config = {
         '/auth/:path*',
         '/home/:path*',
         '/profile',
-        '/business',
-        '/review'
+        '/business/:path*',
+        '/review/:path*'
     ],
 };

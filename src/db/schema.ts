@@ -26,6 +26,7 @@ export const businesses = pgTable("businesses", {
     ownerId: uuid("owner_user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     name: varchar("name", { length: 255 }).notNull(),
     slug: varchar("slug", { length: 255 }).unique().notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
     reviewLink: text("review_link"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
 })

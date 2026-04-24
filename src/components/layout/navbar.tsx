@@ -59,6 +59,7 @@ export default function Navbar() {
                     <Link className="font-medium" href="/home">Home</Link>
                     <Link className="font-medium" href="/business">Business</Link>
                     <Link className="font-medium" href="/reviews">Reviews</Link>
+                    <Link className="font-medium" href="/reviews">Contact us</Link>
                 </div>
 
                 <div className="w-1/2 h-full flex justify-center items-center">
