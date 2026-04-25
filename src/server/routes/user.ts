@@ -47,13 +47,7 @@ export const userRoutes = router({
                     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to register user" })
                 }
 
-                return {
-                    ...createdUser,
-                    password: undefined,
-                    deletedAt: undefined,
-                    updatedAt: undefined,
-                    role: undefined
-                }
+                return { success: true }
             }
         ),
 
@@ -138,7 +132,7 @@ export const userRoutes = router({
                         maxAge: 60 * 60 * 24 * 7,
                     });
 
-                    return { success: true }
+                    return { ...user, password: undefined, role: undefined }
                 })
             }
         ),

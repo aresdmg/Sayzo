@@ -13,6 +13,8 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+export const USER_INFO_KEY = "sayzo_user"
+
 export default function SignIn() {
     const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
@@ -22,7 +24,8 @@ export default function SignIn() {
     })
 
     const mutation = trpc.user.login.useMutation({
-        onSuccess: () => {
+        onSuccess: (e) => {
+            localStorage.setItem(USER_INFO_KEY, JSON.stringify(e))
             toast.success("Welcome")
             reset()
             router.push('/home')

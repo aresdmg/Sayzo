@@ -23,8 +23,8 @@ export const config = {
         '/',
         '/auth/:path*',
         '/home/:path*',
-        '/profile',
         '/business/:path*',
-        '/review/:path*'
+        '/review/:path*',
+        '/profile',
     ],
 };

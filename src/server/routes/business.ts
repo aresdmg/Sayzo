@@ -9,19 +9,28 @@ export const businessRoutes = router({
         .input(businessesSchema)
         .mutation(
             async ({ ctx, input }) => {
-                const { name, ownerId } = input
-                if (!name || !ownerId) {
+                const { name } = input
+                const ownerId = ctx.user.id
+
+                if (!name) {
                     throw new TRPCError({ code: "BAD_REQUEST", message: "Business name is required" })
                 }
 
-                const slug = name.toLowerCase().trim().replaceAll(" ", "-")
+                if (!ownerId) {
+                    throw new TRPCError({ code: "BAD_REQUEST", message: "Owner id is required" })
+                }
+
+                const baseSlug = name.toLowerCase().trim().replaceAll(" ", "")
+                const uniqueSuffix = `${Date.now()}${Math.random().toString(36).slice(2, 8)}`
+                const slug = `${baseSlug}${uniqueSuffix}`
+
                 const [existingSlug] = await ctx.db
                     .select()
                     .from(businesses)
                     .where(
                         and(
                             eq(businesses.slug, slug),
-                            eq(businesses.ownerId, ownerId)
+                            eq(businesses.ownerId, ctx.user.id)
                         )
                     ).limit(1)
 
@@ -197,4 +206,47 @@ export const businessRoutes = router({
                 return business
             }
         ),
+
+    createReviewLink: protectedProcedure
+        .input(businessByIdSchema)
+        .mutation(
+            async ({ ctx, input }) => {
+                const businessId = input.id
+                const userId = ctx.user.id
+
+                const [business] = await ctx.db
+                    .select()
+                    .from(businesses)
+                    .where(
+                        and(
+                            eq(businesses.id, businessId),
+                            eq(businesses.ownerId, userId)
+                        )
+                    ).limit(1)
+
+                if (!business) {
+                    throw new TRPCError({ code: "NOT_FOUND", message: "Business not found" })
+                }
+
+                const reviewLink = `/r/` + `${business.slug}`
+
+                const [updatedBusiness] = await ctx.db
+                    .update(businesses)
+                    .set({
+                        reviewLink
+                    })
+                    .where(
+                        and(
+                            eq(businesses.id, businessId),
+                            eq(businesses.ownerId, userId)
+                        )
+                    ).returning()
+
+                if (!updatedBusiness) {
+                    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to generate business link" })
+                }
+
+                return updatedBusiness
+            }
+        )
 })

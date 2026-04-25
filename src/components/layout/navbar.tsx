@@ -4,7 +4,7 @@ import Link from "next/link";
 import { trpc } from "@/utils/trpc";
 import { Skeleton } from "../ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { USER_INFO_KEY } from "@/app/auth/register/page";
+import { USER_INFO_KEY } from "@/app/auth/login/page";
 import { useEffect, useMemo } from "react";
 
 export default function Navbar() {

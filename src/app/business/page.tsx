@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { Business, businessesSchema } from "@/types/business";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { USER_INFO_KEY } from "../auth/register/page";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -41,18 +40,8 @@ export default function BusinessPage() {
     })
 
     const handleBusinessCreation = async (data: Business) => {
-        const storedUser = localStorage.getItem(USER_INFO_KEY)
-
-        if (!storedUser) {
-            toast.error("User not found")
-            return
-        }
-
-        const localUser = JSON.parse(storedUser)
-
         try {
             await businessCreation.mutateAsync({
-                ownerId: localUser?.id,
                 name: data.name
             });
         } catch (error) {
@@ -146,16 +135,13 @@ export default function BusinessPage() {
                                     <h2 className="font-semibold text-zinc-900 leading-tight">
                                         {e.name}
                                     </h2>
-                                    <p className="text-xs text-zinc-500">
-                                        ID: {e.id}
-                                    </p>
                                 </div>
                             </div>
                             <Separator className="my-4" />
-                            <div className="space-y-1">
-                                <p className="text-xs text-zinc-500">Slug</p>
+                            <div className="flex justify-start items-center space-x-1.5">
+                                <p className="text-sm  text-zinc-500">ID :</p>
                                 <p className="text-sm text-zinc-700 font-medium truncate">
-                                    {e.slug}
+                                    {e.id}
                                 </p>
                             </div>
                             <div className="mt-5 flex items-center justify-between">
