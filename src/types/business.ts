@@ -8,6 +8,10 @@ export const businessByIdSchema = z.object({
     id: z.uuid()
 })
 
+export const businessBySlugSchema = z.object({
+    slug: z.string().min(1, "Business slug is required")
+})
+
 export type BusinessById = z.infer<typeof businessByIdSchema>
 
 export type Business = z.infer<typeof businessesSchema> 

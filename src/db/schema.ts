@@ -35,6 +35,8 @@ export const reviews = pgTable("reviews", {
     id: uuid("id").defaultRandom().primaryKey(),
     businessId: uuid("business_id").references(() => businesses.id, { onDelete: "cascade" }).notNull(),
     rating: integer("rating").notNull(),
+    content: text("content").notNull(),
+    fingerprint: text("fingerprint").notNull(),
     language: varchar("language", { length: 2 }).$type<"en" | "hi">().default("en").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
 })

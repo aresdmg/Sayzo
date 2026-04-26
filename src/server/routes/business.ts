@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router } from "../trpc";
-import { businessByIdSchema, businessesSchema } from "@/types/business";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
+import { businessByIdSchema, businessBySlugSchema, businessesSchema } from "@/types/business";
 import { businesses, users } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
@@ -203,6 +203,31 @@ export const businessRoutes = router({
                             eq(businesses.ownerId, ctx.user.id)
                         )
                     ).limit(1)
+                return business
+            }
+        ),
+
+    getBySlug: publicProcedure
+        .input(businessBySlugSchema)
+        .query(
+            async ({ ctx, input }) => {
+                const businessSlug = input.slug
+
+                if (!businessSlug) {
+                    throw new TRPCError({ code: "BAD_REQUEST", message: "Business slug is required" })
+                }
+
+                const [business] = await ctx.db
+                    .select()
+                    .from(businesses)
+                    .where(
+                        eq(businesses.slug, businessSlug)
+                    )
+
+                if (!business) {
+                    throw new TRPCError({ code: "NOT_FOUND", message: "Business not found" })
+                }
+
                 return business
             }
         ),
