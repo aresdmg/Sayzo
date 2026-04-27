@@ -1,8 +1,9 @@
-import { publicProcedure, router } from "../trpc";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { createReviewSchema } from "@/types/review";
 import { TRPCError } from "@trpc/server";
 import { businesses, reviews } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import z from "zod";
 
 export const reviewRoutes = router({
     create: publicProcedure
@@ -24,7 +25,8 @@ export const reviewRoutes = router({
                         .select({
                             id: businesses.id,
                             name: businesses.name,
-                            ownerId: businesses.ownerId
+                            ownerId: businesses.ownerId,
+                            isActive: businesses.isActive
                         })
                         .from(businesses)
                         .where(
@@ -34,6 +36,10 @@ export const reviewRoutes = router({
 
                     if (!business) {
                         throw new TRPCError({ code: "BAD_REQUEST", message: "Business not found" })
+                    }
+
+                    if (!business.isActive) {
+                        throw new TRPCError({ code: "BAD_REQUEST", message: "Bussiness is not active" })
                     }
 
                     const [exitingReview] = await tx
@@ -66,6 +72,32 @@ export const reviewRoutes = router({
 
                     return createReviewSchema
                 })
+            }
+        ),
+
+    getByBusinessId: protectedProcedure
+        .input(
+            z.object({
+                id: z.uuid()
+            })
+        ).query(
+            async ({ ctx, input }) => {
+                const businessId = input.id
+                if (!businessId) {
+                    throw new TRPCError({ code: "BAD_REQUEST", message: "Business id is required" })
+                }
+
+                const reviewsData = await ctx.db
+                    .select()
+                    .from(reviews)
+                    .where(
+                        and(
+                            eq(reviews.businessId, businessId)
+                        )
+                    )
+
+                const processedReviewData = reviewsData.map(({ fingerprint, businessId, language, ...data }) => data)
+                return processedReviewData
             }
         )
 })

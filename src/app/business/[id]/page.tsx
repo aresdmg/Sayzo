@@ -2,13 +2,14 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { trpc } from "@/utils/trpc"
-import { ArrowLeft, Copy, EllipsisVertical, Loader2, Share } from "lucide-react"
+import { ArrowLeft, ChevronRight, Copy, EllipsisVertical, Loader2, Share } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export default function DynamicBusinessPage() {
     const router = useRouter()
@@ -46,6 +47,16 @@ export default function DynamicBusinessPage() {
         },
     })
 
+    const getReviews = trpc.review.getByBusinessId.useQuery({ id: businessId as string })
+
+    const chartData = getReviews.data?.map((r) => ({
+        date: new Date(r.createdAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        }),
+        reviews: getReviews.data.length,
+    }));
+
     const handleLinkCopying = (reviewLink: string) => {
         const baseDomain = window.location.origin
         const fullLink = baseDomain + reviewLink
@@ -69,7 +80,7 @@ export default function DynamicBusinessPage() {
                             )}
                         </h1>
                         <p className="text-xs text-zinc-400" >
-                            ID: {data?.id }
+                            ID: {data?.id}
                         </p>
                     </div>
                 </div>
@@ -139,38 +150,128 @@ export default function DynamicBusinessPage() {
                     <h1 className="text-lg font-medium" >Business stats</h1>
                 </div>
                 <div className="w-full flex justify-center items-center space-x-3.5" >
-                    <Card className="w-1/3 h-auto" >
+                    <Card className="w-1/3 h-40" >
                         <CardHeader>
                             <CardTitle>Total Reviews</CardTitle>
                             <CardDescription className="text-xs">Total reviews of the busines</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <p>Card Content</p>
+                            {isLoading ? <Skeleton className="w-20 h-5" /> : data && (<p className="text-xl font-semibold" >{data?.totalReviews!} reviews</p>)}
                         </CardContent>
                     </Card>
-                    <Card className="w-1/3 h-auto" >
+                    <Card className="w-1/3 h-40" >
                         <CardHeader>
                             <CardTitle>Average rating</CardTitle>
                             <CardDescription className="text-xs" >Average rating of the business</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <p>Card Content</p>
+                            {isLoading ? <Skeleton className="w-20 h-5" /> : data && (<p className="flex justify-start items-center text-xl font-semibold"> {Number(data?.avgRating!).toFixed()} stars </p>)}
                         </CardContent>
                     </Card>
-                    <Card className="w-1/3 h-auto" >
+                    <Card className="w-1/3 h-40" >
                         <CardHeader>
-                            <CardTitle>Response Rate</CardTitle>
+                            <CardTitle>Business information</CardTitle>
                             <CardDescription className="text-xs" >
-                                Response rate of your users
+                                Complete busines information
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <p>Card Content</p>
+                            <Button className="cursor-pointer" onClick={() => router.push(`/business/${businessId}`)} >
+                                <p>
+                                    View information
+                                </p>
+                                <span>
+                                    <ChevronRight />
+                                </span>
+                            </Button>
                         </CardContent>
                     </Card>
                 </div>
             </div>
-            <div>
+            <div className="w-full h-auto flex justify-center items-start flex-col space-y-2.5" >
+                <div className="w-full flex justify-between items-center" >
+                    <h1 className="text-lg font-medium" >Review anlytics</h1>
+                    <Button variant={"link"} className="cursor-pointer" >
+                        View details
+                        <span className="" >
+                            <ChevronRight className="size-4" />
+                        </span>
+                    </Button>
+                </div>
+                <div className="w-full h-auto flex justify-between items-center space-x-3.5 ">
+                    <div className="w-2/3 flex">
+                        <Card className="w-full h-80">
+                            <CardContent className="w-full h-full" >
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+
+                                        <XAxis
+                                            dataKey="date"
+                                            stroke="#71717a"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+
+                                        <YAxis
+                                            stroke="#71717a"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: "white",
+                                                border: "1px solid #e4e4e7",
+                                                borderRadius: "8px",
+                                                fontSize: "12px",
+                                            }}
+                                        />
+
+                                        <Line
+                                            type="monotone"
+                                            dataKey="reviews"
+                                            stroke="#2563eb"
+                                            strokeWidth={2.5}
+                                            dot={false}
+                                            activeDot={{ r: 5 }}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div className="w-1/3 h-80 flex justify-start items-center flex-col space-y-2.5 ">
+                        {
+                            getReviews.isLoading ?
+                                (
+                                    <Skeleton className="w-full h-20" />
+                                )
+                                :
+                                getReviews.data && getReviews.data.length > 0 ?
+                                    (
+                                        getReviews.data.filter((item, index) => index < 3).map((review) => (
+                                            <Card key={review.id} className="w-full h-full" >
+                                                <CardContent>
+                                                    <p className="text-sm text-gray-600">{review.content}</p>
+                                                    <p className="text-xs text-gray-400 mt-2">
+                                                        {new Date(review.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+                                        ))
+                                    ) : (
+                                        <Card className="w-full p-5" >
+                                            <p className="text-sm font-medium text-zinc-600" >
+                                                No review found.
+                                            </p>
+                                        </Card>
+                                    )
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     )

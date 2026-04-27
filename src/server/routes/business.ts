@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { businessByIdSchema, businessBySlugSchema, businessesSchema } from "@/types/business";
-import { businesses, users } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { businesses, reviews, users } from "@/db/schema";
+import { and, eq, sql } from "drizzle-orm";
 
 export const businessRoutes = router({
     create: protectedProcedure
@@ -194,15 +194,44 @@ export const businessRoutes = router({
                 if (!user) {
                     throw new TRPCError({ code: "NOT_FOUND", message: "User not found" })
                 }
+
+                const reviewStats = ctx.db
+                    .select({
+                        businessId: reviews.businessId,
+                        totalReviews: sql<number>`COUNT(${reviews.id})`.as("total_reviews"),
+                        avgRating: sql<number>`COALESCE(AVG(${reviews.rating}), 0)`.as("avg_rating"),
+                    })
+                    .from(reviews)
+                    .groupBy(reviews.businessId)
+                    .as("review_stats");
+
                 const [business] = await ctx.db
-                    .select()
+                    .select({
+                        id: businesses.id,
+                        name: businesses.name,
+                        slug: businesses.slug,
+                        isActive: businesses.isActive,
+                        reviewLink: businesses.reviewLink,
+
+                        totalReviews: reviewStats.totalReviews,
+                        avgRating: reviewStats.avgRating,
+
+                        owner: {
+                            id: users.id,
+                            name: users.name,
+                            joined: users.createdAt
+                        }
+                    })
                     .from(businesses)
+                    .leftJoin(reviewStats, eq(businesses.id, reviewStats.businessId))
+                    .leftJoin(users, eq(businesses.ownerId, users.id))
                     .where(
                         and(
                             eq(businesses.id, input.id),
                             eq(businesses.ownerId, ctx.user.id)
                         )
-                    ).limit(1)
+                    )
+                    .limit(1);
                 return business
             }
         ),
