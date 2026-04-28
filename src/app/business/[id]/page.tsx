@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 
@@ -36,13 +37,29 @@ export default function DynamicBusinessPage() {
   const param = useParams();
   const businessId = param?.id as string;
 
-  const { data, isLoading, refetch } = trpc.business.getById.useQuery({ id: businessId });
-  const getReviews = trpc.review.getByBusinessId.useQuery({ id: businessId });
+  const utils = trpc.useUtils();
+  const { data, isLoading } = trpc.business.getById.useQuery(
+    { id: businessId },
+    {
+      enabled: Boolean(businessId),
+      placeholderData: (prev) => prev,
+    }
+  );
+  const getReviews = trpc.review.getByBusinessId.useQuery(
+    { id: businessId },
+    {
+      enabled: Boolean(businessId),
+      placeholderData: (prev) => prev,
+    }
+  );
 
   const handleToggleStatus = trpc.business.toggleActivity.useMutation({
     onSuccess() {
       toast.success("Business status updated");
-      refetch();
+      void Promise.all([
+        utils.business.getById.invalidate({ id: businessId }),
+        utils.business.myBusinesses.invalidate(),
+      ]);
     },
     onError(error) {
       toast.error(error.message);
@@ -62,22 +79,32 @@ export default function DynamicBusinessPage() {
   const handleGenerateReviewLink = trpc.business.createReviewLink.useMutation({
     onSuccess() {
       toast.success("Review link created");
-      refetch();
+      void Promise.all([
+        utils.business.getById.invalidate({ id: businessId }),
+        utils.business.myBusinesses.invalidate(),
+      ]);
     },
     onError(error) {
       toast.error(error.message);
     },
   });
 
-  const reviews = getReviews.data ?? [];
-  const chartData = reviews.map((review, index) => ({
-    date: new Date(review.createdAt).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-    reviews: index + 1,
-    rating: review.rating,
-  }));
+  const reviews = useMemo(() => getReviews.data ?? [], [getReviews.data]);
+  const chartData = useMemo(
+    () =>
+      reviews
+        .slice()
+        .reverse()
+        .map((review, index) => ({
+          date: new Date(review.createdAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          }),
+          reviews: index + 1,
+          rating: review.rating,
+        })),
+    [reviews]
+  );
 
   const averageRating = data?.avgRating ? Number(data.avgRating).toFixed(1) : "0.0";
   const reviewLink = data?.reviewLink ?? null;
@@ -261,7 +288,7 @@ export default function DynamicBusinessPage() {
               <CardTitle className="text-xl font-semibold text-zinc-950">Review momentum</CardTitle>
               <CardDescription>Simple visibility into review activity for this business.</CardDescription>
             </CardHeader>
-            <CardContent className="h-[320px]">
+            <CardContent className="h-80">
               {getReviews.isLoading ? (
                 <Skeleton className="h-full w-full rounded-[20px]" />
               ) : chartData.length === 0 ? (

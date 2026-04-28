@@ -2,7 +2,7 @@ import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { createReviewSchema } from "@/types/review";
 import { TRPCError } from "@trpc/server";
 import { businesses, reviews } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import z from "zod";
 
 export const reviewRoutes = router({
@@ -46,9 +46,7 @@ export const reviewRoutes = router({
                         .select()
                         .from(reviews)
                         .where(
-                            and(
-                                eq(reviews.fingerprint, fingerprint)
-                            )
+                            eq(reviews.fingerprint, fingerprint)
                         )
                         .limit(1)
 
@@ -88,16 +86,21 @@ export const reviewRoutes = router({
                 }
 
                 const reviewsData = await ctx.db
-                    .select()
+                    .select({
+                        id: reviews.id,
+                        rating: reviews.rating,
+                        content: reviews.content,
+                        createdAt: reviews.createdAt,
+                    })
                     .from(reviews)
                     .where(
-                        and(
-                            eq(reviews.businessId, businessId)
-                        )
+                        eq(reviews.businessId, businessId)
+                    )
+                    .orderBy(
+                        desc(reviews.createdAt)
                     )
 
-                const processedReviewData = reviewsData.map(({ fingerprint, businessId, language, ...data }) => data)
-                return processedReviewData
+                return reviewsData
             }
         )
 })

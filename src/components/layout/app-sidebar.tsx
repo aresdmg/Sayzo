@@ -1,5 +1,5 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "@/components/ui/sidebar"
-import { Bolt, BrainCircuit } from "lucide-react"
+import { BrainCircuit } from "lucide-react"
 
 export function AppSidebar() {
     return (

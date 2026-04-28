@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, Building2, CircleOff, Plus, Star, TrendingUp } from "lucide-react";
-import { useMemo, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
 import { getStoredUserInfoRaw, parseStoredUserInfo, subscribeStoredUserInfo } from "@/lib/auth-storage";
 import { Badge } from "@/components/ui/badge";
@@ -16,11 +16,11 @@ export default function HomePage() {
     placeholderData: (prev) => prev,
   });
   const businesses = trpc.business.myBusinesses.useQuery(undefined, {
-    refetchOnMount: true,
+    placeholderData: (prev) => prev,
   });
 
   const storedUserRaw = useSyncExternalStore(subscribeStoredUserInfo, getStoredUserInfoRaw, () => null);
-  const storedUser = useMemo(() => parseStoredUserInfo(storedUserRaw), [storedUserRaw]);
+  const storedUser = parseStoredUserInfo(storedUserRaw);
 
   const name = user?.name ?? storedUser?.name ?? "there";
   const businessList = businesses.data ?? [];

@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { businessByIdSchema, businessBySlugSchema, businessesSchema } from "@/types/business";
 import { businesses, reviews, users } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 export const businessRoutes = router({
     create: protectedProcedure
@@ -165,15 +165,21 @@ export const businessRoutes = router({
                 }
 
                 const rawBusinessInfo = await ctx.db
-                    .select()
+                    .select({
+                        id: businesses.id,
+                        name: businesses.name,
+                        slug: businesses.slug,
+                        isActive: businesses.isActive,
+                        reviewLink: businesses.reviewLink,
+                        createdAt: businesses.createdAt,
+                    })
                     .from(businesses)
                     .where(
                         eq(businesses.ownerId, ctxUser.id)
                     )
+                    .orderBy(desc(businesses.createdAt))
 
-                const processedBusinessInfo = rawBusinessInfo.map(({ ownerId, ...rest }) => rest)
-
-                return processedBusinessInfo
+                return rawBusinessInfo
             }
         ),
 

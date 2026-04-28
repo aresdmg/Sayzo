@@ -37,7 +37,7 @@ export default function BusinessPage() {
   });
 
   const myBusiness = trpc.business.myBusinesses.useQuery(undefined, {
-    refetchOnMount: true,
+    placeholderData: (prev) => prev,
   });
 
   const businessCreation = trpc.business.create.useMutation({

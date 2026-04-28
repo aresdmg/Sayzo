@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  BadgeCheck,
   BarChart3,
   BellDot,
-  Building2,
   CheckCircle2,
   ChevronRight,
   CircleDot,
@@ -15,7 +13,6 @@ import {
   MessageSquareText,
   ScanSearch,
   ShieldCheck,
-  Star,
   TrendingUp,
 } from "lucide-react";
 

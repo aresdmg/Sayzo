@@ -2,7 +2,7 @@
 
 import { MessageSquareText, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,26 +12,29 @@ import { trpc } from "@/utils/trpc";
 
 export default function ReviewsPage() {
   const businesses = trpc.business.myBusinesses.useQuery(undefined, {
-    refetchOnMount: true,
+    placeholderData: (prev) => prev,
   });
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
 
-  const businessList = useMemo(() => businesses.data ?? [], [businesses.data]);
+  const businessList = businesses.data ?? [];
   const effectiveSelectedBusinessId = selectedBusinessId ?? businessList[0]?.id ?? null;
 
   const selectedBusiness = businessList.find((business) => business.id === effectiveSelectedBusinessId) ?? null;
   const reviews = trpc.review.getByBusinessId.useQuery(
     { id: effectiveSelectedBusinessId ?? "" },
-    { enabled: Boolean(effectiveSelectedBusinessId) }
+    {
+      enabled: Boolean(effectiveSelectedBusinessId),
+      placeholderData: (prev) => prev,
+    }
   );
 
-  const reviewList = useMemo(() => reviews.data ?? [], [reviews.data]);
-  const averageRating = useMemo(() => {
+  const reviewList = reviews.data ?? [];
+  const averageRating = (() => {
     if (reviewList.length === 0) return "0.0";
 
     const total = reviewList.reduce((sum, review) => sum + review.rating, 0);
     return (total / reviewList.length).toFixed(1);
-  }, [reviewList]);
+  })();
 
   return (
     <div className="min-h-[calc(100vh-3rem)] bg-zinc-50">
@@ -181,10 +184,7 @@ export default function ReviewsPage() {
                   </p>
                 </div>
               ) : (
-                reviewList
-                  .slice()
-                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                  .map((review) => (
+                reviewList.map((review) => (
                     <div key={review.id} className="rounded-[22px] border border-zinc-200 bg-zinc-50 p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-1 text-amber-500">
