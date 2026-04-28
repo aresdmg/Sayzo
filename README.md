@@ -1,45 +1,159 @@
-# Sayzo
+# Turborepo starter
 
-## Overview
-Sayzo is a full-stack web application designed for businesses to collect and manage customer reviews. Business owners can register, create profiles for their businesses, generate unique review links, and analyze the feedback they receive through a dashboard.
+This Turborepo starter is maintained by the Turborepo core team.
 
-## Tech Stack
-* **Frontend Framework**: Next.js 16 (App Router) with React 19.
-* **Styling & UI**: Tailwind CSS (v4), Radix UI, Shadcn UI, Framer Motion (for animations), Recharts (for analytics dashboards), and Lucide React (for icons).
-* **API Layer**: tRPC (Client, Server, and React Query integration) for type-safe API communication between the frontend and backend.
-* **Database & ORM**: PostgreSQL database interacted with via Drizzle ORM.
-* **Authentication & Security**: Custom JWT-based authentication using `jsonwebtoken` and `bcrypt` for password hashing.
-* **Spam Prevention**: Integration with `@fingerprintjs/fingerprintjs` and local storage checks to prevent duplicate reviews from the same user/device.
+## Using this example
 
-## Core Features
-1. **Business Management**:
-   - Users can create and manage multiple businesses.
-   - Each business can be toggled as active/inactive.
-   - Owners can generate unique, shareable review links (e.g., `/r/[slug]`) to send to customers.
-2. **Review Collection**:
-   - Customers can visit a public-facing review page specific to a business.
-   - They can submit a star rating (1-5) and a descriptive text review.
-   - The system tracks fingerprints to ensure one review per device per business.
-   - *Future/Schema feature*: The database schema also supports audio reviews and transcripts, suggesting a feature for voice-based feedback.
-3. **Analytics Dashboard**:
-   - Business owners have a detailed dashboard (`/business/[id]`).
-   - The dashboard displays key metrics: Total Reviews, Average Rating.
-   - It visualizes review trends over time using interactive line charts (Recharts).
-   - It lists the most recent reviews directly on the page.
+Run the following command:
 
-## Database Schema Structure
-The data layer is defined in `src/db/schema.ts` and consists of the following tables:
-* `users`: Manages platform users (business owners), their credentials, and roles.
-* `user_tokens`: Handles refresh tokens for persistent user sessions.
-* `businesses`: Stores business details (name, unique slug, active status, and the generated review link).
-* `reviews`: Stores customer feedback, including rating, content, the user's browser fingerprint, and language.
-* `audio_reviews`: Links to `reviews` to store audio file URLs, duration, and text transcripts.
+```sh
+npx create-turbo@latest
+```
 
-## Directory Structure Highlights
-* `src/app`: Contains the Next.js App Router pages.
-  * `/auth`: Login and registration flows.
-  * `/business`: The dashboard and business management views.
-  * `/r/[slug]`: The public-facing customer review submission form.
-* `src/server/routes`: Contains the tRPC router definitions (`user.ts`, `business.ts`, `review.ts`) defining the backend logic.
-* `src/components`: Contains reusable UI components built with Radix and Shadcn.
-* `src/db`: Contains the Drizzle schema and likely the database connection setup.
+## What's inside?
+
+This Turborepo includes the following packages/apps:
+
+### Apps and Packages
+
+- `docs`: a [Next.js](https://nextjs.org/) app
+- `web`: another [Next.js](https://nextjs.org/) app
+- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+
+### Utilities
+
+This Turborepo has some additional tools already setup for you:
+
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
+
+### Build
+
+To build all apps and packages, run the following command:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+
+```sh
+cd my-turborepo
+turbo build
+```
+
+Without global `turbo`, use your package manager:
+
+```sh
+cd my-turborepo
+npx turbo build
+pnpm dlx turbo build
+pnpm exec turbo build
+```
+
+You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+
+```sh
+turbo build --filter=docs
+```
+
+Without global `turbo`:
+
+```sh
+npx turbo build --filter=docs
+pnpm exec turbo build --filter=docs
+pnpm exec turbo build --filter=docs
+```
+
+### Develop
+
+To develop all apps and packages, run the following command:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+
+```sh
+cd my-turborepo
+turbo dev
+```
+
+Without global `turbo`, use your package manager:
+
+```sh
+cd my-turborepo
+npx turbo dev
+pnpm exec turbo dev
+pnpm exec turbo dev
+```
+
+You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+
+```sh
+turbo dev --filter=web
+```
+
+Without global `turbo`:
+
+```sh
+npx turbo dev --filter=web
+pnpm exec turbo dev --filter=web
+pnpm exec turbo dev --filter=web
+```
+
+### Remote Caching
+
+> [!TIP]
+> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+
+Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+
+```sh
+cd my-turborepo
+turbo login
+```
+
+Without global `turbo`, use your package manager:
+
+```sh
+cd my-turborepo
+npx turbo login
+pnpm exec turbo login
+pnpm exec turbo login
+```
+
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+
+```sh
+turbo link
+```
+
+Without global `turbo`:
+
+```sh
+npx turbo link
+pnpm exec turbo link
+pnpm exec turbo link
+```
+
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
+- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
+- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
+- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
+- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
+- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)

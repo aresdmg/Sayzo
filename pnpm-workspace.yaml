@@ -1,5 +1,3 @@
-ignoredBuiltDependencies:
-  - bcrypt
-  - esbuild
-  - sharp
-  - unrs-resolver
+packages:
+  - "apps/*"
+  - "packages/*"
