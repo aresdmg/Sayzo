@@ -1,8 +1,13 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import dotenv from "dotenv"
 
-export default function initDB() {
+export type DBClinet = {
+    db: NodePgDatabase,
+    pool: Pool
+}
+
+export function initDB(): DBClinet {
     dotenv.config({
         path: "./.env",
         quiet: true
