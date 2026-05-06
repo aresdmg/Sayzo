@@ -16,7 +16,9 @@
     "@fastify/sensible": "^6.0.4",
     "@repo/db": "workspace:*",
     "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
     "fastify": "^5.8.5",
+    "fastify-plugin": "^5.1.0",
     "fastify-type-provider-zod": "^6.1.0",
     "pino-pretty": "^13.1.3"
   },
