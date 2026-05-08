@@ -5,6 +5,9 @@ import jwt from "@fastify/jwt"
 import sensible from "@fastify/sensible"
 import cookies from "@fastify/cookie"
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import db from './plugin/db'
+import auth from './plugin/auth'
+import error from './plugin/error'
 
 export default function bootstrap() {
     const app = Fastify({
@@ -32,6 +35,10 @@ export default function bootstrap() {
             expiresIn: "15m"
         }
     })
+
+    app.register(db)
+    app.register(auth)
+    app.register(error)
 
     return app
 }
