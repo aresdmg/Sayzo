@@ -66,6 +66,7 @@ export const loginUser = async (req: FastifyRequest, reply: FastifyReply) => {
             name: users.name,
             email: users.email,
             password: users.password,
+            avatar: users.avatar,
             role: users.role
         })
         .from(users)
@@ -136,4 +137,17 @@ export const logoutUser = async (req: FastifyRequest, reply: FastifyReply) => {
     return reply
         .clearCookie("sayzo_access_token", { path: "/" })
         .clearCookie("sayzo_refresh_token", { path: "/" })
+}
+
+export const me = async (req: FastifyRequest, reply: FastifyReply) => {
+    const JWTUser = req.user as JWTPayloadType
+    if (!JWTUser) {
+        throw new ApiError("Unauthorized request", 401)
+    }
+
+    const formattedUser = { ...JWTUser, role: undefined }
+
+    return reply.status(200).send(
+        new ApiResponse("User information", 200, formattedUser)
+    )
 }

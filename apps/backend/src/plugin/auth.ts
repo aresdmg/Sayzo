@@ -5,7 +5,8 @@ export type JWTPayloadType = {
     id: string;
     name: string;
     email: string;
-    role: string
+    role: string;
+    avatar: string;
 }
 
 declare module "fastify" {
@@ -30,6 +31,11 @@ const authPlugin: FastifyPluginAsync = async (app: FastifyInstance, _opts: Fasti
             if (!decodeInfo) {
                 throw app.httpErrors.unauthorized("Invalid jwt token")
             }
+
+            if(decodeInfo.role !== "USER") {
+                throw app.httpErrors.unauthorized("User resources not allowed")
+            }
+
             req.user = decodeInfo
         } catch (error) {
             app.log.error(error)

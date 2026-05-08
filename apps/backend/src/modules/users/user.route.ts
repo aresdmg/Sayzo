@@ -21,4 +21,10 @@ export const userRoute = (app: FastifyInstance, _opts: FastifyPluginOptions) => 
         { preHandler: [app.auth] },
         async (req: FastifyRequest, reply: FastifyReply) => controller.logoutUser(req, reply)
     )
+
+    app.get(
+        "/",
+        { preHandler: [app.auth] },
+        async (req: FastifyRequest, reply: FastifyReply) => controller.me(req, reply)
+    )
 }
