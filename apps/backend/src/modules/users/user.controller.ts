@@ -1,11 +1,11 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Login, Register } from "./user.types";
-import { users, userToken } from "@repo/db";
+import { Login, Register } from "./user.types.js";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt"
 import crypto from "node:crypto";
-import { hashToken } from "../../utils/hash-token";
-import { AppError } from "../../utils/payload";
+import { hashToken } from "../../utils/hash-token.js";
+import { ApiError, ApiResponse } from "../../utils/payload.js";
+import { users, userToken } from "../../db/schema.js";
 
 
 export const registerUser = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -13,7 +13,7 @@ export const registerUser = async (req: FastifyRequest, reply: FastifyReply) => 
 
     const { name, email, password } = req.body as Register
     if (!name || !email || !password) {
-        throw new AppError("Missing information", 400)
+        throw new ApiError("Missing information", 400)
     }
 
     const [exitingUser] = await db
@@ -28,7 +28,7 @@ export const registerUser = async (req: FastifyRequest, reply: FastifyReply) => 
         .limit(1)
 
     if (exitingUser) {
-        throw new AppError("Email is taken", 400)
+        throw new ApiError("Email is taken", 400)
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -42,11 +42,12 @@ export const registerUser = async (req: FastifyRequest, reply: FastifyReply) => 
         .returning()
 
     if (!createdUser) {
-        // return Response.error(reply, "Failed to create user", 500)
-        throw new AppError("User creation failed", 500)
+        throw new ApiError("User creation failed", 500)
     }
 
-    return Response.success(reply, createdUser, "User created", 201)
+    return reply.status(201).send(
+        new ApiResponse("User created", 201, createdUser)
+    )
 }
 
 export const loginUser = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -55,7 +56,7 @@ export const loginUser = async (req: FastifyRequest, reply: FastifyReply) => {
 
     const { email, password } = req.body as Login
     if (!email || !password) {
-        return Response.error(reply, "Missing information", 400)
+        throw new ApiError("Missing information", 400)
     }
 
     return await db.transaction(async (tx) => {
@@ -74,12 +75,12 @@ export const loginUser = async (req: FastifyRequest, reply: FastifyReply) => {
             .limit(1)
 
         if (!user) {
-            return Response.error(reply, "User not found", 404)
+            throw new ApiError("User not found", 404)
         }
 
         const isValidPass = await bcrypt.compare(password, user.password!)
         if (!isValidPass) {
-            return Response.error(reply, "Invalid credentials", 400)
+            throw new ApiError("Invalid credentials", 400)
         }
 
         const accessToken = app.jwt.sign(

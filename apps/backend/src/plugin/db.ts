@@ -1,5 +1,5 @@
-import { initDB, type DBClinet } from "@repo/db";
 import { FastifyInstance, FastifyPluginAsync, FastifyPluginOptions } from "fastify";
+import { initDB, type DBClinet } from "../db/client.js";
 import fp from "fastify-plugin"
 
 declare module "fastify" {

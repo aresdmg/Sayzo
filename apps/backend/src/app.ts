@@ -5,9 +5,9 @@ import jwt from "@fastify/jwt"
 import sensible from "@fastify/sensible"
 import cookies from "@fastify/cookie"
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import db from './plugin/db'
-import auth from './plugin/auth'
-import error from './plugin/error'
+import db from './plugin/db.js'
+import auth from './plugin/auth.js'
+import error from './plugin/error.js'
 
 export default function bootstrap() {
     const app = Fastify({

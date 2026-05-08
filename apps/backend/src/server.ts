@@ -1,4 +1,4 @@
-import bootstrap from "./app";
+import bootstrap from "./app.js";
 import dotenv from "dotenv";
 
 function start() {
