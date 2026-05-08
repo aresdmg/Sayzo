@@ -15,4 +15,10 @@ export const userRoute = (app: FastifyInstance, _opts: FastifyPluginOptions) => 
         { preValidation: validate(loginSchema) },
         async (req: FastifyRequest, reply: FastifyReply) => controller.loginUser(req, reply)
     )
+
+    app.post(
+        '/logout',
+        { preHandler: [app.auth] },
+        async (req: FastifyRequest, reply: FastifyReply) => controller.logoutUser(req, reply)
+    )
 }

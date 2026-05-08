@@ -8,6 +8,7 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import db from './plugin/db.js'
 import auth from './plugin/auth.js'
 import error from './plugin/error.js'
+import { userRoute } from './modules/users/user.route.js'
 
 export default function bootstrap() {
     const app = Fastify({
@@ -39,6 +40,8 @@ export default function bootstrap() {
     app.register(db)
     app.register(auth)
     app.register(error)
+
+    app.register(userRoute, { prefix: "/api/v1/users" })
 
     return app
 }

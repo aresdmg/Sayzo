@@ -1,5 +1,5 @@
 import { FastifyError, FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
-import { ApiError } from "../utils/payload";
+import { ApiError } from "../utils/payload.js";
 import fp from "fastify-plugin";
 
 const errorHandlerPlugin: FastifyPluginAsync = async (app: FastifyInstance) => {
