@@ -274,3 +274,47 @@ export const getBySlug = async (req: FastifyRequest, reply: FastifyReply) => {
         new ApiResponse("Business", 200, business)
     )
 }
+
+export const createReviewLink = async (req: FastifyRequest, reply: FastifyReply) => {
+    const JWTUser = req.user as JWTPayloadType
+    if (!JWTUser) {
+        throw new ApiError("Unauthorized", 401)
+    }
+
+
+    const { id } = req.body as ById
+    if (!id) {
+        throw new ApiError("BusinessId is required", 400)
+    }
+
+    const db = req.server.db
+
+    const [business] = await db
+        .select()
+        .from(businesses)
+        .where(
+            and(
+                eq(businesses.id, id),
+                eq(businesses.ownerId, JWTUser.id)
+            )
+        ).limit(1)
+
+    if (!business) {
+        throw new ApiError("Business not found", 400)
+    }
+
+    const reviewLink = `/r/` + `${business.slug}`
+
+    const [updatedBusiness] = await db
+        .update(businesses)
+        .set({ reviewLink })
+        .returning()
+
+    if (!updatedBusiness) {
+        throw new ApiError("Failed to generate business link")
+    }
+
+    return reply.status(200).send(
+        new ApiResponse("Review link generated", 200, updatedBusiness)
+    )
+}
