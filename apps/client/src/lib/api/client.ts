@@ -29,11 +29,12 @@ const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
 export const apiClient = axios.create({
     baseURL,
+    timeout: 10000,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",
     },
-});
+})
 
 apiClient.interceptors.request.use((config) => {
     config.headers.set("Accept", "application/json");
@@ -50,4 +51,4 @@ apiClient.interceptors.response.use(
             new ApiRequestError(message, payload?.statusCode ?? error.response?.status, payload?.errors),
         );
     },
-);
+)

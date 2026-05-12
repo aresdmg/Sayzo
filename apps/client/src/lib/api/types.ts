@@ -8,7 +8,7 @@ export type User = {
     updatedAt?: string;
 };
 
-export type AuthUser = Pick<User, "id" | "name" | "email">;
+export type AuthUser = Pick<User, "id" | "name" | "email" | "avatar">;
 
 export type RegisterPayload = {
     name: string;
@@ -28,6 +28,12 @@ export type Business = {
     isActive: boolean;
     reviewLink: string | null;
     createdAt: string;
+    totalReviews?: number;
+    avgRating?: number | string | null;
+    owner?: {
+        name?: string;
+        joined?: string;
+    };
 };
 
 export type CreateBusinessPayload = {

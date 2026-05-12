@@ -1,35 +1,41 @@
 'use client'
 
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { usersApi } from "@/lib/api"
 import { Login, loginSchema } from "@/types/auth"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@repo/ui/components/button"
-import { Input } from "@repo/ui/components/input"
-import { Label } from "@repo/ui/components/label"
 import { AlertCircle, Eye, EyeClosed, Loader2, ShieldCheck, Star, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { ApiRequestError, usersApi } from "@/lib/api"
+import { toast } from "sonner"
 
 export default function SignIn() {
     const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
-    const [formError, setFormError] = useState<string | null>(null)
-    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Login>({
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<Login>({
         resolver: zodResolver(loginSchema),
         mode: "onChange"
     })
 
     const handleLogin = async (data: Login) => {
-        setFormError(null)
+        setIsSubmitting(true)
 
         try {
-            await usersApi.login(data)
+            await usersApi.login({
+                email: data.email,
+                password: data.password
+            })
             reset()
-            router.push("/")
+            router.push('/home')
         } catch (error) {
-            setFormError(error instanceof ApiRequestError ? error.message : "Unable to log in")
+            toast.error(error instanceof Error ? error.message : "Unable to log in")
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -83,13 +89,6 @@ export default function SignIn() {
                                 </div>
 
                                 <form onSubmit={handleSubmit(handleLogin)} className="mt-5 space-y-3.5">
-                                    {formError && (
-                                        <p className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                                            <AlertCircle className="size-4" />
-                                            {formError}
-                                        </p>
-                                    )}
-
                                     <div className="space-y-1.5">
                                         <Label className="text-sm font-medium text-zinc-800">Email</Label>
                                         <Input

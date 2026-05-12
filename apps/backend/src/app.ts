@@ -10,6 +10,7 @@ import auth from './plugin/auth.js'
 import error from './plugin/error.js'
 import { userRoute } from './modules/users/user.route.js'
 import { businessRoute } from './modules/business/business.route.js'
+import { reviewRoute } from './modules/review/review.route.js'
 
 export default function bootstrap() {
     const app = Fastify({
@@ -27,7 +28,7 @@ export default function bootstrap() {
     app.register(helmet)
     app.register(cookies)
     app.register(cors, {
-        origin: process.env.ORIGIN!,
+        origin: process.env.ORIGIN ?? ["http://localhost:3000", "http://localhost:3001"],
         credentials: true,
     })
     app.register(sensible)
@@ -44,6 +45,7 @@ export default function bootstrap() {
 
     app.register(userRoute, { prefix: "/api/v1/users" })
     app.register(businessRoute, { prefix: "/api/v1/businesses" })
+    app.register(reviewRoute, { prefix: "/api/v1/review" })
 
     return app
 }

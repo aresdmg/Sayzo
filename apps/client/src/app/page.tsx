@@ -16,10 +16,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { SayzoLogo } from "@repo/ui/components/brand/sayzo-logo";
-import { Button } from "@repo/ui/components/button";
-import { Badge } from "@repo/ui/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import { SayzoLogo } from "@/components/brand/sayzo-logo";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 const features = [
   {
     icon: Link2,

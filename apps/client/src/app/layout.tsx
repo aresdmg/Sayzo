@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import "./globals.css";
-import { Toaster } from "@repo/ui/components/sonner";
-import { cn } from "@repo/ui/lib/utils";
+import { cn } from "@/lib/utils";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Sayzo | The Modern Feedback Engine for Growing Brands",

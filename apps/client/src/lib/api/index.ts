@@ -1,8 +1,6 @@
 export { apiClient, ApiRequestError } from "./client";
 export type { ApiErrorPayload, ApiResponse } from "./client";
-export { businessesApi } from "./businesses";
-export { reviewsApi } from "./reviews";
-export { usersApi } from "./users";
+export { usersApi, businessesApi, reviewsApi } from "./models";
 export type {
     AuthUser,
     Business,
