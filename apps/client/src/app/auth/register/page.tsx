@@ -10,25 +10,29 @@ import { useState } from "react"
 import { Label } from "@repo/ui/components/label"
 import { Input } from "@repo/ui/components/input"
 import { Button } from "@repo/ui/components/button"
+import { ApiRequestError, usersApi } from "@/lib/api"
 
 export default function SignUp() {
     const router = useRouter()
     const [showPassword, setShowPassword] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null)
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<Register>({
+    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Register>({
         resolver: zodResolver(registerSchema),
         mode: "onChange"
     })
 
 
     const handleRegister = async (data: Register) => {
-        // await mutation.mutateAsync({
-        console.log({
-            name: data.name,
-            email: data.email,
-            password: data.password
-        })
-        // })
+        setFormError(null)
+
+        try {
+            await usersApi.register(data)
+            reset()
+            router.push("/auth/login")
+        } catch (error) {
+            setFormError(error instanceof ApiRequestError ? error.message : "Unable to create account")
+        }
     }
 
     return (
@@ -81,6 +85,13 @@ export default function SignUp() {
                             </div>
 
                             <form onSubmit={handleSubmit(handleRegister)} className="mt-5 space-y-3.5">
+                                {formError && (
+                                    <p className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                                        <AlertCircle className="size-4" />
+                                        {formError}
+                                    </p>
+                                )}
+
                                 <div className="space-y-1.5">
                                     <Label className="text-sm font-medium text-zinc-800">Full name</Label>
                                     <Input
@@ -138,11 +149,10 @@ export default function SignUp() {
 
                                 <Button
                                     type="submit"
-                                    // disabled={mutation.isPending}
+                                    disabled={isSubmitting}
                                     className="cursor-pointer w-full bg-blue-600 text-sm text-white shadow-sm shadow-blue-950/10 hover:bg-blue-700"
                                 >
-                                    {/* {mutation.isPending ? <Loader2 className="animate-spin" /> : "Create account"} */}
-                                    Create account
+                                    {isSubmitting ? <Loader2 className="animate-spin" /> : "Create account"}
                                 </Button>
                             </form>
 

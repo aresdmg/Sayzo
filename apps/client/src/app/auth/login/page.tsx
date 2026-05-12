@@ -10,17 +10,27 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { ApiRequestError, usersApi } from "@/lib/api"
 
 export default function SignIn() {
     const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<Login>({
+    const [formError, setFormError] = useState<string | null>(null)
+    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Login>({
         resolver: zodResolver(loginSchema),
         mode: "onChange"
     })
 
-    const handleLogin = (data: Login) => {
-        console.log(data);
+    const handleLogin = async (data: Login) => {
+        setFormError(null)
+
+        try {
+            await usersApi.login(data)
+            reset()
+            router.push("/")
+        } catch (error) {
+            setFormError(error instanceof ApiRequestError ? error.message : "Unable to log in")
+        }
     }
 
     return (
@@ -73,6 +83,13 @@ export default function SignIn() {
                                 </div>
 
                                 <form onSubmit={handleSubmit(handleLogin)} className="mt-5 space-y-3.5">
+                                    {formError && (
+                                        <p className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                                            <AlertCircle className="size-4" />
+                                            {formError}
+                                        </p>
+                                    )}
+
                                     <div className="space-y-1.5">
                                         <Label className="text-sm font-medium text-zinc-800">Email</Label>
                                         <Input
@@ -115,11 +132,10 @@ export default function SignIn() {
 
                                     <Button
                                         type="submit"
-                                        // disabled={mutation.isPending}
+                                        disabled={isSubmitting}
                                         className="cursor-pointer w-full bg-blue-600 text-sm font-medium text-white shadow-sm shadow-blue-950/10 hover:bg-blue-700"
                                     >
-                                        {/* {mutation.isPending ? <Loader2 className="animate-spin" /> : "Log in"} */}
-                                        Log in
+                                        {isSubmitting ? <Loader2 className="animate-spin" /> : "Log in"}
                                     </Button>
                                 </form>
 
